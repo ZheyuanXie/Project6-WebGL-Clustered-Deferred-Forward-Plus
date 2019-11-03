@@ -1,4 +1,6 @@
 export default function(params) {
+  var numClusters = params.xSlices * params.ySlices * params.zSlices;
+  var numComponents = Math.ceil((params.maxNumLights + 1) / 4);
   return `
   // TODO: This is pretty much just a clone of forward.frag.glsl.js
 
@@ -11,6 +13,13 @@ export default function(params) {
 
   // TODO: Read this buffer to determine the lights influencing a cluster
   uniform sampler2D u_clusterbuffer;
+
+  // Define additional buffers
+  uniform mat4 u_viewProjectionMatrix;
+  uniform float u_cameraNear;
+  uniform float u_cameraFar;
+  uniform int u_canvasWidth;
+  uniform int u_canvasHeight;
 
   varying vec3 v_position;
   varying vec3 v_normal;
@@ -81,8 +90,29 @@ export default function(params) {
 
     vec3 fragColor = vec3(0.0);
 
-    for (int i = 0; i < ${params.numLights}; ++i) {
-      Light light = UnpackLight(i);
+    vec4 worldPosition = vec4(v_position, 1.0);
+    vec4 cameraPosition = u_viewProjectionMatrix * worldPosition;
+
+    float xStride, yStride, zStride;
+    xStride = float(u_canvasWidth ) / float(${params.xSlices});
+    yStride = float(u_canvasHeight) / float(${params.ySlices});
+    zStride = (u_cameraFar - u_cameraNear) / float(${params.zSlices});
+
+    int clusterX, clusterY, clusterZ;
+    clusterX = int(floor(gl_FragCoord.x / xStride));
+    clusterY = int(floor(gl_FragCoord.y / yStride));
+    clusterZ = int(floor((gl_FragCoord.z - u_cameraNear) / zStride));
+    int clusterIdx = clusterX + clusterY * ${params.xSlices} + clusterZ * ${params.xSlices} * ${params.ySlices};
+    int lightCnt = int(ExtractFloat(u_clusterbuffer, ${numClusters}, ${numComponents}, clusterIdx, 0));
+
+    for (int i = 1; i <= ${params.numLights}; ++i) {
+      if (i > lightCnt) {
+        break;
+      }
+
+      int lightIdx = int(ExtractFloat(u_clusterbuffer, ${numClusters}, ${numComponents}, clusterIdx, i));
+
+      Light light = UnpackLight(lightIdx);
       float lightDistance = distance(light.position, v_position);
       vec3 L = (light.position - v_position) / lightDistance;
 
