@@ -70,14 +70,6 @@ export default class ForwardPlusRenderer extends BaseRenderer {
     // Upload the camera matrix
     gl.uniformMatrix4fv(this._shaderProgram.u_viewProjectionMatrix, false, this._viewProjectionMatrix);
 
-    // Upload canvas dimension
-    gl.uniform1i(this._shaderProgram.u_canvasWidth, canvas.width);
-    gl.uniform1i(this._shaderProgram.u_canvasHeight, canvas.height);
-
-    // Upload frustum limitation
-    gl.uniform1f(this._shaderProgram.u_cameraNear, camera.near);
-    gl.uniform1f(this._shaderProgram.u_cameraFar, camera.far);
-
     // Set the light texture as a uniform input to the shader
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, this._lightTexture.glTexture);
@@ -89,6 +81,13 @@ export default class ForwardPlusRenderer extends BaseRenderer {
     gl.uniform1i(this._shaderProgram.u_clusterbuffer, 3);
 
     // TODO: Bind any other shader inputs
+    // Upload canvas dimension
+    gl.uniform1i(this._shaderProgram.u_canvasWidth, canvas.width);
+    gl.uniform1i(this._shaderProgram.u_canvasHeight, canvas.height);
+
+    // Upload frustum limitation
+    gl.uniform1f(this._shaderProgram.u_cameraNear, camera.near);
+    gl.uniform1f(this._shaderProgram.u_cameraFar, camera.far);
 
     // Draw the scene. This function takes the shader program so that the model's textures can be bound to the right inputs
     scene.draw(this._shaderProgram);
