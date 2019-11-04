@@ -32,20 +32,22 @@ function setRenderer(renderer) {
   }
 }
 
+var gui_dropdown = gui.add(params, 'renderer', [FORWARD, FORWARD_PLUS, CLUSTERED]);
+gui_dropdown.onChange(setRenderer);
+
+// respond to key press (1 - forward, 2 - forward+, 3 - clustered)
 document.body.onkeypress = function(e){
   if(e.keyCode == 49){            // 1
     setRenderer(FORWARD);
-    console.log("FORWARD");
+    gui_dropdown.setValue(FORWARD);
   } else if (e.keyCode == 50) {   // 2
     setRenderer(FORWARD_PLUS);
-    console.log("FORWARD_PLUS");
+    gui_dropdown.setValue(FORWARD_PLUS);
   } else if (e.keyCode == 51) {   // 3
     setRenderer(CLUSTERED);
-    console.log("CLUSTERED");
+    gui_dropdown.setValue(CLUSTERED);
   }
 }
-
-gui.add(params, 'renderer', [FORWARD, FORWARD_PLUS, CLUSTERED]).onChange(setRenderer);
 
 const scene = new Scene();
 scene.loadGLTF('models/sponza/sponza.gltf');

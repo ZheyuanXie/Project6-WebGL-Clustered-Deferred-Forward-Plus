@@ -6,7 +6,7 @@ import { mat4, vec4 } from 'gl-matrix';
 import Scene from '../scene.js';
 import { PerspectiveCamera } from 'three';
 
-export const MAX_LIGHTS_PER_CLUSTER = 100;
+export const MAX_LIGHTS_PER_CLUSTER = 1000;
 
 // The effective range is [0, numSlices - 1], possible returns [-1, numSlices].
 function getSliceIndex(value, min, max, numSlices) {
