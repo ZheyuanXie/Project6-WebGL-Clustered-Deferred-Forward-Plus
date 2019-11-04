@@ -8,6 +8,7 @@ import QuadVertSource from '../shaders/quad.vert.glsl';
 import fsSource from '../shaders/deferred.frag.glsl.js';
 import TextureBuffer from './textureBuffer';
 import BaseRenderer from './base';
+import { MAX_LIGHTS_PER_CLUSTER } from './base.js';
 
 export const NUM_GBUFFERS = 3;
 
@@ -28,8 +29,13 @@ export default class ClusteredRenderer extends BaseRenderer {
     this._progShade = loadShaderProgram(QuadVertSource, fsSource({
       numLights: NUM_LIGHTS,
       numGBuffers: NUM_GBUFFERS,
+      maxNumLights: MAX_LIGHTS_PER_CLUSTER,
+      xSlices: this._xSlices,
+      ySlices: this._ySlices,
+      zSlices: this._zSlices,
     }), {
-      uniforms: ['u_lightbuffer', 'u_gbuffers[0]', 'u_gbuffers[1]', 'u_gbuffers[2]', 'u_gbuffers[3]'],
+      uniforms: ['u_lightbuffer', 'u_gbuffers[0]', 'u_gbuffers[1]', 'u_gbuffers[2]', 'u_gbuffers[3]',
+                 'u_clusterbuffer', 'u_canvasWidth', 'u_canvasHeight', 'u_cameraNear', 'u_cameraFar'],
       attribs: ['a_uv'],
     });
 
@@ -158,6 +164,19 @@ export default class ClusteredRenderer extends BaseRenderer {
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, this._lightTexture.glTexture);
     gl.uniform1i(this._progShade.u_lightbuffer, 2);
+
+    // Set the cluster texture as a uniform input to the shader
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D, this._clusterTexture.glTexture);
+    gl.uniform1i(this._progShade.u_clusterbuffer, 3);
+
+    // Upload canvas dimension
+    gl.uniform1i(this._progShade.u_canvasWidth, canvas.width);
+    gl.uniform1i(this._progShade.u_canvasHeight, canvas.height);
+
+    // Upload frustum limitation
+    gl.uniform1f(this._progShade.u_cameraNear, camera.near);
+    gl.uniform1f(this._progShade.u_cameraFar, camera.far);
 
     // Bind g-buffers
     const firstGBufferBinding = 4; // You may have to change this if you use other texture slots

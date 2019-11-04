@@ -1,11 +1,19 @@
 export default function(params) {
+  var numClusters = params.xSlices * params.ySlices * params.zSlices;
+  var numComponents = Math.ceil((params.maxNumLights + 1) / 4);
   return `
   #version 100
   precision highp float;
   
   uniform sampler2D u_gbuffers[${params.numGBuffers}];
   uniform sampler2D u_lightbuffer;
+
   uniform sampler2D u_clusterbuffer;
+
+  uniform float u_cameraNear;
+  uniform float u_cameraFar;
+  uniform int u_canvasWidth;
+  uniform int u_canvasHeight;
   
   varying vec2 v_uv;
 
@@ -70,10 +78,28 @@ export default function(params) {
     vec3 position = gb1.xyz;
     vec3 normal = gb2.xyz;
 
+    float xStride, yStride, zStride;
+    xStride = float(u_canvasWidth ) / float(${params.xSlices});
+    yStride = float(u_canvasHeight) / float(${params.ySlices});
+    zStride = (u_cameraFar - u_cameraNear) / float(${params.zSlices});
+
+    int clusterX, clusterY, clusterZ;
+    clusterX = int(floor(gl_FragCoord.x / xStride));
+    clusterY = int(floor(gl_FragCoord.y / yStride));
+    clusterZ = int(floor((gl_FragCoord.z - u_cameraNear) / zStride));
+    int clusterIdx = clusterX + clusterY * ${params.xSlices} + clusterZ * ${params.xSlices} * ${params.ySlices};
+    int lightCnt = int(ExtractFloat(u_clusterbuffer, ${numClusters}, ${numComponents}, clusterIdx, 0));
+
     vec3 fragColor = vec3(0.0);
 
-    for (int i = 0; i < ${params.numLights}; ++i) {
-      Light light = UnpackLight(i);
+    for (int i = 1; i <= ${params.numLights}; ++i) {
+      if (i > lightCnt) {
+        break;
+      }
+
+      int lightIdx = int(ExtractFloat(u_clusterbuffer, ${numClusters}, ${numComponents}, clusterIdx, i));
+
+      Light light = UnpackLight(lightIdx);
       float lightDistance = distance(light.position, position);
       vec3 L = (light.position - position) / lightDistance;
 

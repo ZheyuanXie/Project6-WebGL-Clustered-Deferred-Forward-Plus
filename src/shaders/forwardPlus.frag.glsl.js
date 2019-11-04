@@ -15,7 +15,6 @@ export default function(params) {
   uniform sampler2D u_clusterbuffer;
 
   // Define additional buffers
-  uniform mat4 u_viewProjectionMatrix;
   uniform float u_cameraNear;
   uniform float u_cameraFar;
   uniform int u_canvasWidth;
@@ -88,11 +87,6 @@ export default function(params) {
     vec3 normap = texture2D(u_normap, v_uv).xyz;
     vec3 normal = applyNormalMap(v_normal, normap);
 
-    vec3 fragColor = vec3(0.0);
-
-    vec4 worldPosition = vec4(v_position, 1.0);
-    vec4 cameraPosition = u_viewProjectionMatrix * worldPosition;
-
     float xStride, yStride, zStride;
     xStride = float(u_canvasWidth ) / float(${params.xSlices});
     yStride = float(u_canvasHeight) / float(${params.ySlices});
@@ -104,6 +98,8 @@ export default function(params) {
     clusterZ = int(floor((gl_FragCoord.z - u_cameraNear) / zStride));
     int clusterIdx = clusterX + clusterY * ${params.xSlices} + clusterZ * ${params.xSlices} * ${params.ySlices};
     int lightCnt = int(ExtractFloat(u_clusterbuffer, ${numClusters}, ${numComponents}, clusterIdx, 0));
+
+    vec3 fragColor = vec3(0.0);
 
     for (int i = 1; i <= ${params.numLights}; ++i) {
       if (i > lightCnt) {

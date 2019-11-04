@@ -13,10 +13,10 @@ function getSliceIndex(value, min, max, numSlices) {
   let stride = (max - min) / numSlices;
   let index =  Math.floor((value - min) / stride);
   if (index < 0) {
-    return -1;
+    return 0;
   }
   if (index >= numSlices ) {
-    return numSlices;
+    return numSlices - 1;
   }
   return index;
 }
@@ -69,30 +69,20 @@ export default class BaseRenderer {
       let maxLightZ = lightZ + light.radius;
       let minLightZ = lightZ - light.radius;
 
-      // light does not influence the frustum
-      if (minLightZ > camera.far || maxLightZ < camera.near) {
-        continue;
-      }
-
       let minClusterZidx = getSliceIndex(minLightZ, camera.near, camera.far, this._zSlices);
       let maxClusterZidx = getSliceIndex(maxLightZ, camera.near, camera.far, this._zSlices);
       minClusterZidx = minClusterZidx < 0 ? 0 : minClusterZidx;
       maxClusterZidx = maxClusterZidx >= this._zSlices - 1 ? this._zSlices : maxClusterZidx;
 
-      let maxLightX = lightX + light.radius;
-      let minLightX = lightX - light.radius;
-      let maxLightY = lightY + light.radius;
-      let minLightY = lightY - light.radius;
+      let maxLightX = lightX + light.radius * 1.2;
+      let minLightX = lightX - light.radius * 1.2;
+      let maxLightY = lightY + light.radius * 1.2;
+      let minLightY = lightY - light.radius * 1.2;
 
       // frustum width and height at light z
       let frustumZ = minLightZ < camera.near ? camera.near : minLightZ;
       let yRange = frustumZ * Math.tan(camera.fov * 0.5 * (Math.PI / 180));
       let xRange = yRange * camera.aspect;
-
-      // light does not influence the frustum
-      if (maxLightX < -xRange || minLightX > xRange || maxLightY < -yRange || minLightY > yRange) {
-        continue;
-      }
 
       let minClusterXidx = getSliceIndex(minLightX, -xRange, xRange, this._xSlices);
       let maxClusterXidx = getSliceIndex(maxLightX, -xRange, xRange, this._xSlices);
@@ -103,9 +93,13 @@ export default class BaseRenderer {
       minClusterYidx = minClusterYidx < 0 ? 0 : minClusterYidx;
       maxClusterYidx = maxClusterYidx >= this._ySlices ? this._ySlices - 1 : maxClusterYidx;
 
+      // minClusterXidx = 0; maxClusterXidx = 14;
+      // minClusterYidx = 0; maxClusterYidx = 14;
+      // minClusterZidx = 0; maxClusterZidx = 14;
+
       for (let z = minClusterZidx; z <= maxClusterZidx; z++) {
         for (let y = minClusterYidx; y <= maxClusterYidx; y++) {
-          for (let x = minClusterXidx; x <= maxClusterXidx; x++ ){
+          for (let x = minClusterXidx; x <= maxClusterXidx; x++) {
             let i = x + y * this._xSlices + z * this._xSlices * this._ySlices;
             let count = this._clusterTexture.buffer[this._clusterTexture.bufferIndex(i, 0)];
             count++;
