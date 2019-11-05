@@ -6,15 +6,20 @@ WebGL Clustered and Forward+ Shading
 * Zheyuan Xie
 * Tested on: Windows 10 Pro, i7-7700HQ @ 2.80GHz, 16GB, GTX 1050 2GB (Dell XPS 15 9560)
 
-### Live Online
+### Live Demo
 
-[![](img/thumb.png)](http://TODO.github.io/Project5B-WebGL-Deferred-Shading)
+[![](img/thumb.png)](https://zheyuanxie.github.io/Project6-WebGL-Clustered-Deferred-Forward-Plus/)
 
-### Demo Video/GIF
+Use keyboard shortcut to switch between rendering mode:
+ - <1> - Switch to *simple forward rendering*.
+ - <2> - Switch to *clustered forward rendering*.
+ - <3> - Switch to *clustered deferred rendering*.
+ - <4> - Switch to *clustered deferred rendering with Blinn-Phong shading*.
 
-[![](img/video.png)](TODO)
+### Video Demo
 
 ### Overview
+
 
 ### Performance Analysis
 
