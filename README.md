@@ -18,10 +18,30 @@ Use keyboard shortcut to switch between rendering mode:
 
 ### Video Demo
 
-### Overview
+Link to video: [https://youtu.be/wNil31n5d4k](https://youtu.be/wNil31n5d4k)
 
+### Features
+
+Render Implemented:
+
+ - **Clustered Forward (Forward Plus) Renderer**: Populate `clusterTexture` to store number of lights and list of lights for each cluster.
+ - **Clustered Deferred Renderer**: Store vertex color, position, and normal into g-buffer. Do clustered rendering with information from g-buffer.
+
+Effects:
+
+ - Blinn-Phong Shading for clustered deferred renderer.
+
+Optimization:
+
+ - Pack value into `vec4` and use 2-component normals.
 
 ### Performance Analysis
+
+![](img/performance.png)
+
+ - Simple forward rendering has the worst performance.
+ - Clustered forward rendering has more advantage as the number of lights increases.
+ - Clustered deferred rendering is generally much more faster than the previous two methods at the cost of higher memory bandwitdh.
 
 ### Credits
 
