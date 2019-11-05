@@ -6,7 +6,8 @@ import Scene from './scene';
 
 const FORWARD = 'Forward';
 const FORWARD_PLUS = 'Forward+';
-const CLUSTERED = 'Clustered';
+const CLUSTERED = 'Clustered(P)';
+const CLUSTERED_BP = 'Clustered(BP)'
 
 const params = {
   renderer: FORWARD_PLUS,
@@ -27,12 +28,16 @@ function setRenderer(renderer) {
       break;
     case CLUSTERED:
       params.renderer = CLUSTERED;
-      params._renderer = new ClusteredRenderer(15, 15, 15);
+      params._renderer = new ClusteredRenderer(15, 15, 15, false);
+      break;
+    case CLUSTERED_BP:
+      params.renderer = CLUSTERED_BP;
+      params._renderer = new ClusteredRenderer(15, 15, 15, true);
       break;
   }
 }
 
-var gui_dropdown = gui.add(params, 'renderer', [FORWARD, FORWARD_PLUS, CLUSTERED]);
+var gui_dropdown = gui.add(params, 'renderer', [FORWARD, FORWARD_PLUS, CLUSTERED, CLUSTERED_BP]);
 gui_dropdown.onChange(setRenderer);
 
 // respond to key press (1 - forward, 2 - forward+, 3 - clustered)
@@ -46,6 +51,9 @@ document.body.onkeypress = function(e){
   } else if (e.keyCode == 51) {   // 3
     setRenderer(CLUSTERED);
     gui_dropdown.setValue(CLUSTERED);
+  } else if (e.keyCode == 52) {
+    setRenderer(CLUSTERED_BP);
+    gui_dropdown.setValue(CLUSTERED_BP);
   }
 }
 

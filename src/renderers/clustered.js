@@ -10,10 +10,10 @@ import TextureBuffer from './textureBuffer';
 import BaseRenderer from './base';
 import { MAX_LIGHTS_PER_CLUSTER } from './base.js';
 
-export const NUM_GBUFFERS = 3;
+export const NUM_GBUFFERS = 2;
 
 export default class ClusteredRenderer extends BaseRenderer {
-  constructor(xSlices, ySlices, zSlices) {
+  constructor(xSlices, ySlices, zSlices, blinnPhong) {
     super(xSlices, ySlices, zSlices);
     
     this.setupDrawBuffers(canvas.width, canvas.height);
@@ -33,9 +33,11 @@ export default class ClusteredRenderer extends BaseRenderer {
       xSlices: this._xSlices,
       ySlices: this._ySlices,
       zSlices: this._zSlices,
+      blinnPhong: blinnPhong,
     }), {
       uniforms: ['u_lightbuffer', 'u_gbuffers[0]', 'u_gbuffers[1]', 'u_gbuffers[2]', 'u_gbuffers[3]',
-                 'u_clusterbuffer', 'u_canvasWidth', 'u_canvasHeight', 'u_cameraNear', 'u_cameraFar'],
+                 'u_clusterbuffer', 'u_canvasWidth', 'u_canvasHeight', 'u_cameraNear', 'u_cameraFar',
+                 'u_cameraPosition'],
       attribs: ['a_uv'],
     });
 
@@ -177,6 +179,10 @@ export default class ClusteredRenderer extends BaseRenderer {
     // Upload frustum limitation
     gl.uniform1f(this._progShade.u_cameraNear, camera.near);
     gl.uniform1f(this._progShade.u_cameraFar, camera.far);
+
+    // Upload camera position
+    gl.uniform3f(this._progShade.u_cameraPosition,
+                 camera.position.x, camera.position.y, camera.position.z);
 
     // Bind g-buffers
     const firstGBufferBinding = 4; // You may have to change this if you use other texture slots
