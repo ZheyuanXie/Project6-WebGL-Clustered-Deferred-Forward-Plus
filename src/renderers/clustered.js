@@ -10,7 +10,8 @@ import TextureBuffer from './textureBuffer';
 import BaseRenderer from './base';
 import { MAX_LIGHTS_PER_CLUSTER } from './base.js';
 
-export const NUM_GBUFFERS = 2;
+export const NUM_GBUFFERS = 2;  // 2-component normal
+// export const NUM_GBUFFERS = 3;  // 3-component normal
 
 export default class ClusteredRenderer extends BaseRenderer {
   constructor(xSlices, ySlices, zSlices, blinnPhong) {

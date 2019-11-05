@@ -1,3 +1,5 @@
+![](img/demo.gif)
+
 WebGL Clustered and Forward+ Shading
 ======================
 
@@ -20,20 +22,24 @@ Use keyboard shortcut to switch between rendering mode:
 
 Link to video: [https://youtu.be/wNil31n5d4k](https://youtu.be/wNil31n5d4k)
 
-### Features
+### Introduction
 
-Render Implemented:
+#### Clustered Rendering
+In clustered shading. Instead of performing light culling checks on 2D screen tiles, we use 3D cells (clusteres). The screen is divided into tiles and the frustum is sliced along the z-axis as well. In the rendering pass, each pixel is assigned into a cluster, only lights affecting the assigned cluster will be calculated. This significantly reduce the amount of computation when there are many lights.
+
+
+
+#### Deferred Shading
+Deferred shading is a screen-space shading technique. Positions, normals, and material properties are fisrt rendered into the geometry buffer (G-buffer). After this, a pixel shader computes the lighting at each pixel using the information of the geometry buffer. Its primary advantage over forward shading is the decoupling of scene geometry from lighting.
+
+
+
+### Features
 
  - **Clustered Forward (Forward Plus) Renderer**: Populate `clusterTexture` to store number of lights and list of lights for each cluster.
  - **Clustered Deferred Renderer**: Store vertex color, position, and normal into g-buffer. Do clustered rendering with information from g-buffer.
-
-Effects:
-
- - Blinn-Phong Shading for clustered deferred renderer.
-
-Optimization:
-
- - Pack value into `vec4` and use 2-component normals.
+ - Blinn-Phong Shading for clustered deferred renderer. (New Effect)
+ - Pack value into `vec4` and use 2-component normals. (Optimization)
 
 ### Performance Analysis
 
@@ -42,6 +48,8 @@ Optimization:
  - Simple forward rendering has the worst performance.
  - Clustered forward rendering has more advantage as the number of lights increases.
  - Clustered deferred rendering is generally much more faster than the previous two methods at the cost of higher memory bandwitdh.
+
+ Blinn-Phong shading and the use of 2-component normals has no significant performance impact in terms of time spent per frame. Since Blinn-Phong shading requires additional computation for specular component, the use of 2-componetn normals requires extra computation for encoding and decoding, these features will decrease the rendering performance. However, these extra computational overhead did not affects FPS to a noticible extent.
 
 ### Credits
 
